@@ -1,6 +1,6 @@
-from Buscas.caminho import Caminho
-from Exceptions.CaminhoExistenteException import CaminhoExistenteException
-from Exceptions.CaminhoInexistenteException import CaminhoInexistenteException
+from GraphModels.Buscas.caminho import Caminho
+from GraphModels.Exceptions.CaminhoExistenteException import CaminhoExistenteException
+from GraphModels.Exceptions.CaminhoInexistenteException import CaminhoInexistenteException
 #Classe responsavel por armazenar as possiveis solucoes(caminhos) para os algoritimos de busca
 class Fronteira:
 

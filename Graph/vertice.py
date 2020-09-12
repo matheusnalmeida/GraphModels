@@ -1,16 +1,16 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from Exceptions import ArestaInexistenteException
-from Util.util import Util
+from GraphModels.Exceptions import ArestaInexistenteException
+from GraphModels.Util.util import Util
 
 if TYPE_CHECKING:
-    from Graph.aresta import Aresta
+    from GraphModels.Graph.aresta import Aresta
 
 class Vertice:
     
-    def __init__(self,id :str,heurisitica :int = -1):
+    def __init__(self,id :str,heuristica :int = -1):
         self.__id = id
-        self.__heuristica = heurisitica
+        self.__heuristica = heuristica
         self.__arestas = {}
         
     def add_aresta(self,aresta :Aresta):
@@ -52,12 +52,12 @@ class Vertice:
         self.__id = value
 
     @property
-    def heurisitica(self):
-        return self.__heurisitica
+    def heuristica(self):
+        return self.__heuristica
     
-    @heurisitica.setter
-    def heurisitica(self,value):
-        self.__heurisitica = value
+    @heuristica.setter
+    def heuristica(self,value):
+        self.__heuristica = value
     
     @property
     def arestas(self):

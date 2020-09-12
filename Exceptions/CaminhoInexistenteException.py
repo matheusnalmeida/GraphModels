@@ -1,4 +1,4 @@
-from Buscas.caminho import Caminho
+from GraphModels.Buscas.caminho import Caminho
 
 class CaminhoInexistenteException(Exception):
     def __init__(self,message :str, caminho :Caminho):

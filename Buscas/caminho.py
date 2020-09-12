@@ -1,13 +1,13 @@
 from __future__ import annotations
 import sys
 from typing import TYPE_CHECKING
-from Graph.aresta import Aresta
-from Exceptions.ArestasIncompatibilityException import ArestasIncompatibilityException
-from Exceptions.VerticeInexistenteException import VerticeInexistenteException
+from GraphModels.Graph.aresta import Aresta
+from GraphModels.Exceptions.ArestasIncompatibilityException import ArestasIncompatibilityException
+from GraphModels.Exceptions.VerticeInexistenteException import VerticeInexistenteException
 
 if TYPE_CHECKING:
-    from Graph.vertice import Vertice
-    from Util.util import Util
+    from GraphModels.Graph.vertice import Vertice
+    from GraphModels.Util.util import Util
 
 #Classe responsavel por representar um dado caminho dos algoritimos de busca
 class Caminho:

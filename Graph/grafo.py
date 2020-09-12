@@ -1,12 +1,13 @@
-from Graph.aresta import Aresta
-from Graph.vertice import Vertice
-from Util.util import Util
-from Exceptions.VerticeInexistenteException import VerticeInexistenteException
-from Exceptions.HeuristicaException import HeuristicaException
-from Exceptions.CaminhoInexistenteException import CaminhoInexistenteException
+from GraphModels.Graph.aresta import Aresta
+from GraphModels.Graph.vertice import Vertice
+from GraphModels.Util.util import Util
+from GraphModels.Exceptions.VerticeInexistenteException import VerticeInexistenteException
+from GraphModels.Exceptions.HeuristicaException import HeuristicaException
+from GraphModels.Exceptions.CaminhoInexistenteException import CaminhoInexistenteException
+from GraphModels.Exceptions.CaminhoExistenteException import CaminhoExistenteException
 #----------------- Busca Importacao ---------------------------
-from Buscas.caminho import Caminho
-from Buscas.fronteira import Fronteira
+from GraphModels.Buscas.caminho import Caminho
+from GraphModels.Buscas.fronteira import Fronteira
 
 class Grafo:
 
@@ -74,14 +75,14 @@ class Grafo:
         fronteira.add_caminho(Caminho(verticeInicio))
         
         while (not fronteira.fronteira_vazia()):
-            menorCaminhoAtual = Util.retorna_menor_caminho_fronteira_por_distancia(fronteira)
+            menorCaminhoAtual = Util.retorna_menor_caminho_por_distancia(fronteira)
             fronteira.remove_caminho(menorCaminhoAtual)
             if menorCaminhoAtual.vertice_final == verticeDestino:
                 return Util.montar_mensagem_busca_custo_uniforme(verticeInicio,verticeDestino,[menorCaminhoAtual])
             if menorCaminhoAtual.distancia != 0:
                 menoresCaminhosEncontrados.append(menorCaminhoAtual)
             verticeVisitados.append(menorCaminhoAtual.vertice_final)
-            caminhosNaoVisitados = Util.retorna_menor_caminhos_nao_visitados_por_peso(menorCaminhoAtual,verticeVisitados)
+            caminhosNaoVisitados = Util.retorna_menor_caminhos_nao_visitados(menorCaminhoAtual,verticeVisitados)
             #Verificando se existe algum caminho na fronteira que possui vertice final igual a algum dos novos caminhos nao visitados
             for caminho in caminhosNaoVisitados:
                 try:
@@ -95,12 +96,15 @@ class Grafo:
                     fronteira.add_caminho(caminho)
         
         return Util.montar_mensagem_busca_custo_uniforme(verticeInicio,verticeDestino,menoresCaminhosEncontrados)
+    
+    def buscaGulosa(self,verticeInicio :Vertice,verticeDestino :Vertice):
 
-    def buscaGulosa(self, verticeInicio :Vertice, verticeDestino :Vertice):
         heuristicasNaoValidas = Util.grafo_sem_eurisitica(self)
         if heuristicasNaoValidas:
             raise HeuristicaException("Existem vertices no grafo com valor de heuristica invalido. Busca gulosa nao pode ser realizada")
-        
+
+        verticeVisitados = []
+
         verticeInicio = self.procurarVertice(verticeInicio)
         if not verticeInicio:
             raise VerticeInexistenteException("Foi informado um vertice de inicio que não existe no grafo. Não foi possivel realizar a busca de custo uniforme.",
@@ -108,23 +112,58 @@ class Grafo:
 
         fronteira = Fronteira()
         fronteira.add_caminho(Caminho(verticeInicio))
-        ultimoVerticeAtual = verticeInicio
-
-        while (not fronteira.fronteira_vazia()):
-            caminhoMenorHeuristica = fronteira.retorna_caminho(Caminho(ultimoVerticeAtual))
-            print(caminhoMenorHeuristica)
-            fronteira.remove_caminho(caminhoMenorHeuristica)
-            if  caminhoMenorHeuristica.vertice_final == verticeDestino and caminhoMenorHeuristica.vertice_final.heuristica == 0:
-                return Util.montar_mensagem_busca_gulosa(verticeInicio,verticeDestino,caminhoMenorHeuristica)
-            novoCaminhoMenorHeuristica = Util.retorna_menor_caminho_por_heuristica(caminhoMenorHeuristica)
-            if novoCaminhoMenorHeuristica:
-                fronteira.add_caminho(novoCaminhoMenorHeuristica)
-                ultimoVerticeAtual = novoCaminhoMenorHeuristica.vertice_final
         
+        while (not fronteira.fronteira_vazia()):
+            menorCaminhoAtual = Util.retorna_menor_caminho_por_heuristica(fronteira)
+            fronteira.remove_caminho(menorCaminhoAtual)
+            if  menorCaminhoAtual.vertice_final == verticeDestino and menorCaminhoAtual.vertice_final.heuristica == 0:
+                return Util.montar_mensagem_busca_gulosa(verticeInicio,verticeDestino,menorCaminhoAtual)
+            verticeVisitados.append(menorCaminhoAtual.vertice_final)
+            caminhosNaoVisitados = Util.retorna_menor_caminhos_nao_visitados(menorCaminhoAtual,verticeVisitados)
+            #Verificando se existe algum caminho na fronteira que possui vertice final igual a algum dos novos caminhos nao visitados
+            for caminho in caminhosNaoVisitados:
+                try:
+                    fronteira.add_caminho(caminho)
+                except CaminhoExistenteException:
+                    continue
+
         return Util.montar_mensagem_busca_gulosa(verticeInicio,verticeDestino)
 
-    def buscaAEstrela(self):
-        pass
+    def buscaAEstrela(self, verticeInicio :Vertice, verticeDestino :Vertice):
+        heuristicasNaoValidas = Util.grafo_sem_eurisitica(self)
+        if heuristicasNaoValidas:
+            raise HeuristicaException("Existem vertices no grafo com valor de heuristica invalido. Busca gulosa nao pode ser realizada")
+
+        verticeVisitados = []
+
+        verticeInicio = self.procurarVertice(verticeInicio)
+        if not verticeInicio:
+            raise VerticeInexistenteException("Foi informado um vertice de inicio que não existe no grafo. Não foi possivel realizar a busca de custo uniforme.",
+                            [verticeInicio]) 
+
+        fronteira = Fronteira()
+        fronteira.add_caminho(Caminho(verticeInicio))
+        
+        while (not fronteira.fronteira_vazia()):
+            menorCaminhoAtual = Util.retorna_menor_caminho_por_distancia_heuristica(fronteira)
+            fronteira.remove_caminho(menorCaminhoAtual)
+            if menorCaminhoAtual.vertice_final == verticeDestino:
+                return Util.montar_mensagem_busca_a_estrela(verticeInicio,verticeDestino,menorCaminhoAtual)
+            verticeVisitados.append(menorCaminhoAtual.vertice_final)
+            caminhosNaoVisitados = Util.retorna_menor_caminhos_nao_visitados(menorCaminhoAtual,verticeVisitados)
+            #Verificando se existe algum caminho na fronteira que possui vertice final igual a algum dos novos caminhos nao visitados
+            for caminho in caminhosNaoVisitados:
+                try:
+                    caminhoFronteira = fronteira.retorna_caminho(caminho) 
+                    # Caso ja exista na fronteira um caminho que possua vertice final igual ao caminho atual,
+                    # somente sera substituido se possuir uma distancia menor do que o ja existente 
+                    if (caminho.distancia + caminho.vertice_final.heurisitica) < (caminhoFronteira.distancia + caminhoFronteira.vertice_final.heurisitica):
+                        fronteira.remove_caminho(caminhoFronteira)
+                        fronteira.add_caminho(caminho)
+                except CaminhoInexistenteException:
+                    fronteira.add_caminho(caminho)
+        
+        return Util.montar_mensagem_busca_a_estrela(verticeInicio,verticeDestino)
 
     @property
     def vertices(self):
